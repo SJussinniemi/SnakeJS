@@ -5,25 +5,46 @@ var nelio = Tausta.getContext("2d");
 var omena = Tausta.getContext("2d");
 var xKoord = 50; //Aloituskoordinaatit käärmeenpäälle
 var yKoord = 50;
+var seuraavaPos =[xKoord,yKoord];
 var ruudunPaivitys = 60; // Milli sekuntteja.
 var madonnopeus = 10;
 var madonsuunta = 3; // 1 = VASEN 2 = YLÖS 3 = OIKEA 4 = ALAS
-var kerroin = Math.floor(Math.random()*4)+1;
-var xOmena = ((Math.floor(Math.random()*11)*10) * kerroin);
-var yOmena = ((Math.floor(Math.random()*11)*10) * kerroin);
+var madonpituus = 0;
+var kerroin = Math.floor(Math.random() * 4) + 1;
+var xOmena = ((Math.floor(Math.random() * 11) * 10) * kerroin);
+var yOmena = ((Math.floor(Math.random() * 11) * 10) * kerroin);
 var str = "Game Over!";
 var pisteet = 0;
+var snek;
+var madonpalat =[[30,50],[10,50]];
 
+Mato = function() {
 
-// Game loop
-gameLoop();
+	
+	
+	kasva = function () {
+		
+		for(var i = 0; i < madonpalat.length; i++){
+			var matox = madonpalat[i];
+			nelio.strokeRect(matox[0], matox[1], 20, 20);
+			console.log(matox[0] + "..." + matox[1]);
+		}
+	}
+
+	liiku = function () {
+		//"Tyhjentää" ruudun vanhoista neliöistä. 
+		nelio.clearRect(0, 0, taustanLeveys, taustanKorkeus);
+		//"Liikuttaa" matoa luomalla uuden neliön.
+		nelio.strokeRect(seuraavaPos[0], seuraavaPos[1], 20, 20);
+	}
+	
+};
 
 function gameLoop() {
-    //"Tyhjentää" ruudun vanhoista neliöistä.
-    nelio.clearRect(0, 0, taustanLeveys, taustanKorkeus);
-    //"Liikuttaa" matoa luomalla uuden neliön.
-    nelio.strokeRect(xKoord, yKoord, 20, 20);
-    
+	
+	liiku();
+	kasva();
+	
     luoOmena(xOmena,yOmena);
 
     // Madon pää osuu seinään 
@@ -36,24 +57,30 @@ function gameLoop() {
     // 1 = VASEN, 2 = YLÖS, 3 = OIKEA, 4 = ALAS
     if (madonsuunta === 1) {
         xKoord = xKoord - madonnopeus;
-    } else if (madonsuunta === 2) {
-        yKoord = yKoord - madonnopeus;      
-    } else if (madonsuunta === 3) {
+		seuraavaPos = [xKoord,yKoord];
+    }else if (madonsuunta === 2) {
+        yKoord = yKoord - madonnopeus;
+		seuraavaPos = [xKoord,yKoord];
+    }else if (madonsuunta === 3) {
         xKoord = xKoord + madonnopeus;
-    } else if (madonsuunta === 4) {
-        yKoord = yKoord + madonnopeus;      
+		seuraavaPos = [xKoord,yKoord];
+    }else if (madonsuunta === 4) {
+        yKoord = yKoord + madonnopeus;
+		seuraavaPos = [xKoord,yKoord];
     }
     
     //Törmäys omenaan
     if (xKoord === xOmena && yKoord === yOmena) {
-        xOmena = (Math.floor(Math.random()*10)*10) * kerroin;
+		// Omenalle uudet koordinaatit
+        xOmena = (Math.floor(Math.random()*10)*10) * kerroin; 
         yOmena = (Math.floor(Math.random()*10)*10) * kerroin;
+		// Lisätään pistet
 		pisteet = pisteet + 100;
 		pistepaivitys();
     }  
 
     window.setTimeout(gameLoop, ruudunPaivitys); // Kutsuu tätä moveTest funktiota "ruudunPaivitys"ms välein
-}
+};
 
 // Tehdään omenapelilaudalle
 function luoOmena(x,y) {
@@ -87,3 +114,7 @@ window.onkeydown = function (k) {
         madonsuunta = 4;
     }
 };
+
+snek = Mato();
+// Game loop
+gameLoop();
