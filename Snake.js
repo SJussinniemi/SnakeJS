@@ -1,76 +1,91 @@
+// HTML juttuja
 var Tausta = document.getElementById("sTausta");
 var taustanLeveys = Tausta.width;
 var taustanKorkeus = Tausta.height;
 var nelio = Tausta.getContext("2d");
 var omena = Tausta.getContext("2d");
-var xKoord = 50; //Aloituskoordinaatit käärmeenpäälle
-var yKoord = 50;
-var seuraavaPos =[xKoord,yKoord];
+var str = "Game Over!";
+var pisteet = 0;
+
 var ruudunPaivitys = 60; // Milli sekuntteja.
-var madonnopeus = 10;
-var madonsuunta = 3; // 1 = VASEN 2 = YLÖS 3 = OIKEA 4 = ALAS
-var madonpituus = 0;
+// Satunnaislaskuri TODO parempi
 var kerroin = Math.floor(Math.random() * 4) + 1;
 var xOmena = ((Math.floor(Math.random() * 11) * 10) * kerroin);
 var yOmena = ((Math.floor(Math.random() * 11) * 10) * kerroin);
-var str = "Game Over!";
-var pisteet = 0;
 var snek;
-var madonpalat =[[30,50],[10,50]];
 
 Mato = function() {
-
 	
+	this.madonpalat = [];
+	this.madonpituus = 3;
+	this.madonsuunta = 3; // 1 = VASEN 2 = YLÖS 3 = OIKEA 4 = ALAS
+	this.madonnopeus = 20;
+	this.xKoord = 50; //Aloituskoordinaatit käärmeenpäälle
+	this.yKoord = 20;
+	this.madonpaa = madonpalat[0];
 	
-	kasva = function () {
-		
-		for(var i = 0; i < madonpalat.length; i++){
-			var matox = madonpalat[i];
-			nelio.strokeRect(matox[0], matox[1], 20, 20);
-			console.log(matox[0] + "..." + matox[1]);
+	luoMato = function () {
+		// Luodaan mato laudalle käyttäne positiota x:50,y:20;
+		var z = xKoord;
+		for(var i = madonpituus - 1; i >= 0; i--){
+			
+			madonpalat.push({x:z,y:20});
+			z-=20;
+			console.log("moi");
 		}
+	}
+	
+	piirrapala = function (x,y) {
+		nelio.strokeRect(x,y,20,20);
 	}
 
 	liiku = function () {
 		//"Tyhjentää" ruudun vanhoista neliöistä. 
 		nelio.clearRect(0, 0, taustanLeveys, taustanKorkeus);
-		//"Liikuttaa" matoa luomalla uuden neliön.
-		nelio.strokeRect(seuraavaPos[0], seuraavaPos[1], 20, 20);
-	}
-	
+
+		// Poistaa viimeisimmän position listasta
+		madonpalat.pop();
+		// Piirtää paloiksi kaikki positiot listassa
+		for(var i = 0; i < madonpalat.length; i++){
+			var z = madonpalat[i];
+			console.log(i + ": " + z.x + " --- " + z.y);
+			piirrapala(z.x, z.y);	
+		}
+	}	
 };
 
 function gameLoop() {
 	
 	liiku();
-	kasva();
-	
     luoOmena(xOmena,yOmena);
 
     // Madon pää osuu seinään 
     if (xKoord < 0 || xKoord > 401 || yKoord < 0 || yKoord > 401) {
         madonnopeus = 0;
+		console.log("GG");
         peliLoppu();
     }
-   
-    // Liikutetaan matoa haluttuun suuntaan
-    // 1 = VASEN, 2 = YLÖS, 3 = OIKEA, 4 = ALAS
+    /* 	
+	Liikutetaan matoa haluttuun suuntaan
+    1 = VASEN, 2 = YLÖS, 3 = OIKEA, 4 = ALAS
+	unshift lisää uuden position matopalat listaan.
+	*/
     if (madonsuunta === 1) {
         xKoord = xKoord - madonnopeus;
-		seuraavaPos = [xKoord,yKoord];
+		madonpalat.unshift({x:xKoord,y:yKoord});
     }else if (madonsuunta === 2) {
         yKoord = yKoord - madonnopeus;
-		seuraavaPos = [xKoord,yKoord];
+		madonpalat.unshift({x:xKoord,y:yKoord});
     }else if (madonsuunta === 3) {
         xKoord = xKoord + madonnopeus;
-		seuraavaPos = [xKoord,yKoord];
+		madonpalat.unshift({x:xKoord,y:yKoord});
     }else if (madonsuunta === 4) {
         yKoord = yKoord + madonnopeus;
-		seuraavaPos = [xKoord,yKoord];
+		madonpalat.unshift({x:xKoord,y:yKoord});
     }
     
     //Törmäys omenaan
-    if (xKoord === xOmena && yKoord === yOmena) {
+	if (xKoord === xOmena && yKoord === yOmena) {
 		// Omenalle uudet koordinaatit
         xOmena = (Math.floor(Math.random()*10)*10) * kerroin; 
         yOmena = (Math.floor(Math.random()*10)*10) * kerroin;
@@ -118,3 +133,4 @@ window.onkeydown = function (k) {
 snek = Mato();
 // Game loop
 gameLoop();
+luoMato();
